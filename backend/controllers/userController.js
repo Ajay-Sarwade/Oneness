@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler'
 import generateToken from '../utils/generateToken.js'
 import User from '../models/userModel.js'
+import database from '../utils/localdb.js'
 
 // @desc    Auth user & get token
 // @route   POST /api/users/login
@@ -166,6 +167,41 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 })
 
+// ----------------
+let cartItemsjson = new database("backend/data/cartData.json");
+
+const updateCart = asyncHandler(async (req, res) => {
+  const sentCartItems = req.body.cartItems;
+  const user = await User.findById(req.user._id)
+  
+  if (user) {
+    const cartItems = cartItemsjson.read();
+    // const usersCartItems = cartItems[user._id];
+    
+    cartItems[user._id] = sentCartItems;
+
+    cartItemsjson.write(cartItems);
+    res.status(200).send("Cart updated");
+  }
+  else {
+    res.status(404)
+    throw new Error('User not found')
+  }
+})
+
+const getCartItems = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id)
+  
+  if (user) {
+    const cartItems = cartItemsjson.read();
+    res.json(cartItems[user._id]);
+  } else {
+    res.status(404)
+    throw new Error('User not found')
+  }
+})
+
+
 export {
   authUser,
   registerUser,
@@ -175,4 +211,6 @@ export {
   deleteUser,
   getUserById,
   updateUser,
+  getCartItems,
+  updateCart
 }
