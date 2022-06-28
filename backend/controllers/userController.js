@@ -171,9 +171,10 @@ const updateUser = asyncHandler(async (req, res) => {
 let cartItemsjson = new database("backend/data/cartData.json");
 
 const updateCart = asyncHandler(async (req, res) => {
-  const sentCartItems = req.body.cartItems;
-  const user = await User.findById(req.user._id)
-  
+  //console.log(req.body)
+  const usr_id=Object.keys(req.body)[0];
+  const sentCartItems = req.body[usr_id]
+  const user = await User.findById(usr_id)
   if (user) {
     const cartItems = cartItemsjson.read();
     // const usersCartItems = cartItems[user._id];
@@ -191,7 +192,7 @@ const updateCart = asyncHandler(async (req, res) => {
 
 const getCartItems = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id)
-  
+  //console.log(user)
   if (user) {
     const cartItems = cartItemsjson.read();
     res.json(cartItems[user._id]);

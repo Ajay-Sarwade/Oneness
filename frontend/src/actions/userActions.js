@@ -26,8 +26,9 @@ import {
   USER_UPDATE_REQUEST,
 } from '../constants/userConstants'
 import { ORDER_LIST_MY_RESET } from '../constants/orderConstants'
+import { addToCart } from './cartActions'
 
-export const login = (email, password) => async (dispatch) => {
+export const login = (email, password) => async (dispatch,getState) => {
   try {
     dispatch({
       type: USER_LOGIN_REQUEST,
@@ -49,8 +50,28 @@ export const login = (email, password) => async (dispatch) => {
       type: USER_LOGIN_SUCCESS,
       payload: data,
     })
-
     localStorage.setItem('userInfo', JSON.stringify(data))
+    const {
+      userLogin: { userInfo },
+    } = getState()
+  
+    // const config = {
+    //   headers: {
+    //     Authorization: `Bearer ${userInfo.token}`,
+    //   },
+    // }
+    //console.log(config)
+    //const id=userInfo._id
+    //const c={"Hi":id}
+    const res=await axios.get('/api/users/cart',{
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    })
+    const data1=JSON.parse(res.data)
+    for (const key in data1){
+      dispatch(addToCart(data1[key]['product'],data1[key]['qty']))
+    }
   } catch (error) {
     dispatch({
       type: USER_LOGIN_FAIL,
@@ -60,9 +81,26 @@ export const login = (email, password) => async (dispatch) => {
           : error.message,
     })
   }
+  
+  //dispatch(addToCart(data[0]['product'],data[0]['qty']))
 }
 
-export const logout = () => (dispatch) => {
+export const logout = () => async (dispatch,getState) => {
+  const {
+    userLogin: { userInfo },
+  } = getState()
+  const config = {
+    headers: {
+      Authorization: `Bearer ${userInfo.token}`,
+    },
+  }
+  var a=JSON.parse(localStorage.getItem('userInfo'))._id
+  const b=localStorage.getItem('cartItems')
+  //console.log(typeof(a))
+  const c={[a]:b}
+  //console.log(c)
+  await axios.post('/api/users/cart',c,config)
+  //console.log(res)
   localStorage.removeItem('userInfo')
   localStorage.removeItem('cartItems')
   localStorage.removeItem('shippingAddress')
