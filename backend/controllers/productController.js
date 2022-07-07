@@ -157,6 +157,14 @@ const getTopProducts = asyncHandler(async (req, res) => {
   res.json(products)
 })
 
+const computationtask = asyncHandler(async (req, res) => {
+  let x=0.0001
+  for(var i=0; i<=1000000000;i++){
+    x=x+Math.sqrt(x)+Math.sqrt(x)+Math.sqrt(x)+Math.sqrt(x)+Math.sqrt(x)+Math.sqrt(x)+Math.sqrt(x)
+  }
+  res.json({"HEllo":x})
+})
+
 export {
   getProducts,
   getProductById,
@@ -165,4 +173,5 @@ export {
   updateProduct,
   createProductReview,
   getTopProducts,
+  computationtask
 }
